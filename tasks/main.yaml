@@ -1,0 +1,54 @@
+---
+- name: Install python dependency for Debian
+  become: true
+  when: ansible_os_family == "Debian"
+  apt:
+    name: "{{ item }}"
+    update_cache: true
+    state: latest 
+  with_items:
+    - make 
+    - build-essential
+    - libssl-dev
+    - zlib1g-dev
+    - libbz2-dev
+    - libreadline-dev
+    - libsqlite3-dev
+    - wget
+    - curl
+    - llvm
+    - libncurses5-dev
+    - libncursesw5-dev
+    - xz-utils
+    - tk-dev
+
+- name: Download Python Source
+  get_url:
+    url: https://www.python.org/ftp/python/{{python_version}}/Python-{{python_version}}.tgz
+    dest: /tmp
+
+- name: Extract python={{python_version}}.tgz into /tmp
+  unarchive:
+    src: /tmp/Python-{{python_version}}.tgz
+    dest: /tmp
+
+- name: return motd to registered var
+  command: sh configure
+  args:
+    chdir: /tmp/Python-{{python_version}}
+
+- make: 
+    chdir: /tmp/Python-{{python_version}}
+
+- make: 
+    chdir: /tmp/Python-{{python_version}}
+    target: altinstall
+
+- name: "Make Alias to python{{ python_version }} version"
+  shell: "echo 'alias python=python{{ python_version[:3] }}' >> /home/vagrant/.bashrc"
+  when: make_alias
+
+# - debug:  
+#     msg: "System {{ python_version[2:] }}"
+#   when: python_version[2:] | float < 7.1 | float
+ 
