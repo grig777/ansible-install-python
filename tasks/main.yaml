@@ -1,4 +1,5 @@
 ---
+
 - name: Install python dependency for Debian
   become: true
   when: ansible_os_family == "Debian"
@@ -7,20 +8,38 @@
     update_cache: true
     state: latest 
   with_items:
-    - make 
     - build-essential
-    - libssl-dev
+    - make 
     - zlib1g-dev
     - libbz2-dev
     - libreadline-dev
     - libsqlite3-dev
-    - wget
-    - curl
     - llvm
     - libncurses5-dev
     - libncursesw5-dev
     - xz-utils
     - tk-dev
+
+- name: Install python dependency for Centos or Red Hat Enterprise Linux
+  become: true
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+  yum:
+    name: "{{ item }}"
+    update_cache: true
+    state: latest 
+  with_items:
+    - "@Development tools"
+    - openssl-devel 
+    - libffi-devel
+    - bzip2-devel
+    - sqlite-devel
+    - zlib-devel
+    - yum-utils
+    - llvm
+    - xz
+    - tk-devel
+    - ncurses-devel
+    - libselinux-python
 
 - name: Download Python Source
   get_url:
@@ -32,12 +51,9 @@
     src: /tmp/Python-{{python_version}}.tgz
     dest: /tmp
 
-- name: return motd to registered var
-  command: sh configure
+- name: Configure python
+  shell: "sh configure --enable-optimizations"
   args:
-    chdir: /tmp/Python-{{python_version}}
-
-- make: 
     chdir: /tmp/Python-{{python_version}}
 
 - make: 
@@ -51,4 +67,3 @@
 # - debug:  
 #     msg: "System {{ python_version[2:] }}"
 #   when: python_version[2:] | float < 7.1 | float
- 
