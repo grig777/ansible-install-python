@@ -1,45 +1,10 @@
 ---
 
-- name: Install python dependency for Debian
-  become: true
+- import_tasks: debian_dependency.yaml
   when: ansible_os_family == "Debian"
-  apt:
-    name: "{{ item }}"
-    update_cache: true
-    state: latest 
-  with_items:
-    - build-essential
-    - make 
-    - zlib1g-dev
-    - libbz2-dev
-    - libreadline-dev
-    - libsqlite3-dev
-    - llvm
-    - libncurses5-dev
-    - libncursesw5-dev
-    - xz-utils
-    - tk-dev
 
-- name: Install python dependency for Centos or Red Hat Enterprise Linux
-  become: true
+- import_tasks: redhat_dependency.yaml
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
-  yum:
-    name: "{{ item }}"
-    update_cache: true
-    state: latest 
-  with_items:
-    - "@Development tools"
-    - openssl-devel 
-    - libffi-devel
-    - bzip2-devel
-    - sqlite-devel
-    - zlib-devel
-    - yum-utils
-    - llvm
-    - xz
-    - tk-devel
-    - ncurses-devel
-    - libselinux-python
 
 - name: Download Python Source
   get_url:
@@ -52,7 +17,7 @@
     dest: /tmp
 
 - name: Configure python
-  shell: "sh configure --enable-optimizations"
+  shell: "sh configure --enable-optimizations --with-ssl"
   args:
     chdir: /tmp/Python-{{python_version}}
 
@@ -61,9 +26,8 @@
     target: altinstall
 
 - name: "Make Alias to python{{ python_version }} version"
-  shell: "echo 'alias python=python{{ python_version[:3] }}' >> /home/vagrant/.bashrc"
+  shell: "echo 'alias python=/usr/local/bin/python{{ python_version[:3] }}' >> /home/vagrant/.bashrc"
   when: make_alias
 
-# - debug:  
-#     msg: "System {{ python_version[2:] }}"
-#   when: python_version[2:] | float < 7.1 | float
+- include_tasks: install_pip.yaml
+  when: (python_version[:1] == "3" and python_version[2:] | float < 4.0 | float) or (python_version[:1] == "2" and python_version[2:] | float < 7.9 | float)

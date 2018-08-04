@@ -1,0 +1,22 @@
+---
+
+- name: Install python dependency for Centos or Red Hat Enterprise Linux
+  become: true
+  yum:
+    name: "{{ item }}"
+    update_cache: true
+    state: latest 
+  with_items:
+    - "@Development tools"
+    - openssl-devel 
+    - libffi-devel
+    - bzip2-devel
+    - sqlite-devel
+    - zlib-devel
+    - yum-utils
+    - llvm
+    - xz
+    - tk-devel
+    - ncurses-devel
+    - libselinux-python
+    - curl
