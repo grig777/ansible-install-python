@@ -1,0 +1,4 @@
+---
+- name: Install pipenv
+  shell: /usr/local/bin/pip{{ python_version[:3] }} install pipenv
+  when: install_pipenv

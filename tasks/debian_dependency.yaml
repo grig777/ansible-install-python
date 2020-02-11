@@ -1,7 +1,7 @@
----
 
 - name: Install python dependency for Debian
   become: true
+  when: ansible_os_family == "Debian"
   apt:
     name: "{{ item }}"
     update_cache: true
@@ -19,4 +19,5 @@
     - xz-utils
     - tk-dev
     - libssl-dev
+    - libffi-dev
     - curl

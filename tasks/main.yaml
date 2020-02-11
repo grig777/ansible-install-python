@@ -31,3 +31,5 @@
 
 - include_tasks: install_pip.yaml
   when: (python_version[:1] == "3" and python_version[2:] | float < 4.0 | float) or (python_version[:1] == "2" and python_version[2:] | float < 7.9 | float)
+
+# - include_tasks: install_pipenv.yaml
